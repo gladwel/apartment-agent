@@ -90,6 +90,13 @@ def scrape_sreality(page: int = 1, limit: int = 50) -> list:
             href = links[0].get("href") if links else ""
             link = f"https://www.sreality.cz{href}" if href else ""
             
+            # Изображение - берём из _links
+            image_url = ""
+            estate_links = e.get("_links", {})
+            images = estate_links.get("images", [])
+            if images:
+                image_url = images[0].get("href", "")
+            
             results.append({
                 "Название": name,
                 "Цена": price_value,
@@ -99,6 +106,7 @@ def scrape_sreality(page: int = 1, limit: int = 50) -> list:
                 "Локация": locality_str,
                 "Источник": "SReality",
                 "Ссылка": link,
+                "Фото": image_url,
                 "Дата": datetime.now().strftime("%Y-%m-%d %H:%M")
             })
         

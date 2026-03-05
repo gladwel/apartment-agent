@@ -28,16 +28,27 @@ python3 scraper.py -o both
 python3 scraper.py --open
 ```
 
-## Bezrealitky API
+## Bezrealitky.cz
 
-Для полного функционала Bezrealitky нужен API ключ:
+**Проблема:** Bezrealitky закрыли публичный API, требуется API ключ.
 
+**Как получить ключ:**
+
+1. Открой bezrealitky.cz в браузере
+2. Открой DevTools (F12) → вкладка **Network**
+3. Найди любой запрос к `api.bezrealitky.cz`
+4. В заголовках запроса найди `X-Api-Key`
+5. Скопируй значение ключа
+
+**Установка ключа:**
 ```bash
 export BEZREALITKY_API_KEY="твой_ключ"
 python3 scraper.py
 ```
 
-Ключ можно получить через dev tools браузера на bezrealitky.cz (запросы к API).
+**Альтернативы:**
+- SReality.cz ✅ (уже работает)
+- Попробуй другие агрегаторы: koupě.cz, reality.idnes.cz
 
 ## Фильтры
 

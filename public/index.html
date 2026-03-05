@@ -369,11 +369,12 @@
             grid.innerHTML = '<div class="loading">Загрузка данных...</div>';
             
             try {
-                // Пробуем загрузить из Excel/CSV
-                const response = await fetch('./output/byty_latest.xlsx').catch(() => null);
-                if (response && response.ok) {
-                    // Пока используем demo данные
-                    properties = demoData;
+                // Загружаем JSON из скрейпера
+                const response = await fetch('../output/byty_latest.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    // Добавляем ID для трекинга
+                    properties = data.map((p, i) => ({...p, id: i}));
                 } else {
                     properties = demoData;
                 }
@@ -419,35 +420,41 @@
                 Всего: ${properties.length}
             `;
             
-            grid.innerHTML = filtered.map(p => {
-                const saved = savedData[p.id] || {};
+            grid.innerHTML = filtered.map((p, idx) => {
+                const id = p.id !== undefined ? p.id : idx;
+                const saved = savedData[id] || {};
                 const status = saved.status || '';
                 const notes = saved.notes || '';
-                const imageUrl = p.image || '';
+                const imageUrl = p['Фото'] || p['photo'] || p.image || '';
+                const name = p['Название'] || p.name || '';
+                const price = p['Цена'] || p.price || 0;
+                const area = p['Площадь'] || p.area || 0;
+                const location = p['Локация'] || p.location || '';
+                const url = p['Ссылка'] || p.url || '';
                 
                 return `
                 <div class="card">
                     ${imageUrl 
-                        ? `<img class="card-image" src="${imageUrl}" alt="${p.name}" onerror="this.outerHTML='<div class=\\'card-image placeholder\\'>🏠</div>'">`
+                        ? `<img class="card-image" src="${imageUrl}" alt="${name}" onerror="this.outerHTML='<div class=\\'card-image placeholder\\'>🏠</div>'">`
                         : `<div class="card-image placeholder">🏠</div>`
                     }
                     <div class="card-body">
-                        <div class="card-title">${p.name}</div>
-                        <div class="card-price">${formatPrice(p.price)} Kč</div>
-                        <div class="card-meta">${p.area} м² • ${p.price / p.area | 0} Kč/м²</div>
-                        <div class="card-location">📍 ${p.location}</div>
+                        <div class="card-title">${name}</div>
+                        <div class="card-price">${formatPrice(price)} Kč</div>
+                        <div class="card-meta">${area} м² • ${area ? (price / area | 0) : 0} Kč/м²</div>
+                        <div class="card-location">📍 ${location}</div>
                         
-                        <select class="status-select" data-status="${status}" onchange="updateStatus(${p.id}, this.value)">
+                        <select class="status-select" data-status="${status}" onchange="updateStatus(${id}, this.value)">
                             <option value="">— Статус —</option>
                             <option value="to_write" ${status === 'to_write' ? 'selected' : ''}>📝 To Write</option>
                             <option value="prohlidka_planned" ${status === 'prohlidka_planned' ? 'selected' : ''}>📅 Prohlídka Planned</option>
                             <option value="visited" ${status === 'visited' ? 'selected' : ''}>✅ Visited</option>
                         </select>
                         
-                        <textarea class="notes" placeholder="Заметки..." onchange="updateNotes(${p.id}, this.value)">${notes}</textarea>
+                        <textarea class="notes" placeholder="Заметки..." onchange="updateNotes(${id}, this.value)">${notes}</textarea>
                         
                         <div class="card-actions">
-                            <a href="${p.url}" target="_blank" class="btn btn-view">👁 Смотреть</a>
+                            <a href="${url}" target="_blank" class="btn btn-view">👁 Смотреть</a>
                             <button class="btn btn-save" onclick="saveData()">💾 Сохранить</button>
                         </div>
                     </div>
