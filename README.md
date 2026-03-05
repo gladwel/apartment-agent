@@ -30,25 +30,30 @@ python3 scraper.py --open
 
 ## Bezrealitky.cz
 
-**Проблема:** Bezrealitky закрыли публичный API, требуется API ключ.
+**Статус:** ⚠️ API закрыт, требует browser automation
 
-**Как получить ключ:**
+Bezrealitky использует современный Next.js frontend без публичного API.
 
-1. Открой bezrealitky.cz в браузере
-2. Открой DevTools (F12) → вкладка **Network**
-3. Найди любой запрос к `api.bezrealitky.cz`
-4. В заголовках запроса найди `X-Api-Key`
-5. Скопируй значение ключа
+**Варианты:**
 
-**Установка ключа:**
-```bash
-export BEZREALITKY_API_KEY="твой_ключ"
-python3 scraper.py
+### 1. Browser Automation (Playwright)
+```python
+from playwright.sync_api import sync_playwright
+
+with sync_playwright() as p:
+    browser = p.chromium.launch()
+    page = browser.new_page()
+    page.goto("https://www.bezrealitky.cz/vypis/nabidka-pronajem/byt")
+    # Парси HTML после загрузки
 ```
 
-**Альтернативы:**
-- SReality.cz ✅ (уже работает)
-- Попробуй другие агрегаторы: koupě.cz, reality.idnes.cz
+### 2. Работающие альтернативы
+| Источник | API | Статус |
+|----------|-----|--------|
+| SReality.cz | ✅ | Работает |
+| Reality.idnes.cz | ? | Требует проверки |
+
+SReality покрывает основной рынок.
 
 ## Фильтры
 
