@@ -274,6 +274,10 @@ def save_results(df: pd.DataFrame, fmt: str = "xlsx") -> Path:
         df.to_csv(csv_path, index=False)
         return xlsx_path
     
+    # Также сохраняем latest.json для фронтенда
+    latest_json = OUTPUT_DIR / "byty_latest.json"
+    df.to_json(latest_json, orient="records", force_ascii=False, indent=2)
+    
     return filepath
 
 
