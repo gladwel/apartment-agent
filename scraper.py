@@ -17,6 +17,18 @@ from pathlib import Path
 OUTPUT_DIR = Path(__file__).parent / "output"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
+# Фильтры по умолчанию (можно изменить через аргументы или переменные окружения)
+FILTERS = {
+    "area_min": 30,          # мин. площадь
+    "area_max": None,        # макс. площадь
+    "price_min": None,       # мин. цена
+    "price_max": 25000000,   # макс. цена (25 млн для покупки, или 25000 для аренды)
+    "category_type_cb": 1,   # 1=продажа, 2=аренда
+    "category_main_cb": 1,   # 1=квартиры
+    "region": None,          # None=вся ЧР, 14=Praha
+    "sort": "0",            # 0=по дате
+}
+
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     "Accept": "application/json",
@@ -24,20 +36,42 @@ HEADERS = {
 }
 
 
-def scrape_sreality(page: int = 1, limit: int = 50) -> list:
+def scrape_sreality(page: int = 1, limit: int = 50, filters: dict = None) -> list:
     """
     Скрапинг SReality.cz через их API v2
     category_main_cb: 1=квартиры, 2=дома, 3=участки
-    category_sub_cb: 1=продажа, 2=аренда
+    category_type_cb: 1=продажа, 2=аренда
+    
+    filters: словарь с фильтрами (area_min, area_max, price_min, price_max, region)
     """
+    if filters is None:
+        filters = FILTERS
+    
     url = "https://www.sreality.cz/api/v2/estates"
     params = {
         "page": page,
         "limit": limit,
-        "category_main_cb": 1,  # Квартиры
-        "category_type_cb": 1,  # Продажа (не аренда!)
-        "sort": "0",            # Сортировка по дате
+        "category_main_cb": filters.get("category_main_cb", 1),
+        "category_type_cb": filters.get("category_type_cb", 1),
+        "sort": filters.get("sort", "0"),
     }
+    
+    # Добавляем фильтры
+    if filters.get("area_min"):
+        params["area_min"] = filters["area_min"]
+    if filters.get("area_max"):
+        params["area_max"] = filters["area_max"]
+    if filters.get("price_min"):
+        params["price_min"] = filters["price_min"]
+    if filters.get("price_max"):
+        params["price_max"] = filters["price_max"]
+    if filters.get("region"):
+        params["region"] = filters["region"]
+    
+    # Исключаем "spolubydlící" (совместное проживание) - category_sub_cb=3
+    # Это комнаты в shared apartments
+    if filters.get("exclude_shared", True):
+        params["category_sub_cb"] = "1,2,4,5,6,7,8,9,10,11,12,13,14,15,16"  # Все кроме 3
     
     try:
         r = requests.get(url, params=params, headers=HEADERS, timeout=30)
@@ -229,16 +263,19 @@ def scrape_bezrealitky_html(page: int = 1, limit: int = 50) -> list:
         return []
 
 
-def scrape_all(pages: int = 3) -> pd.DataFrame:
+def scrape_all(pages: int = 3, filters: dict = None) -> pd.DataFrame:
     """
     Сбор данных со всех источников
     """
+    if filters is None:
+        filters = FILTERS
+    
     all_properties = []
     
     print("🟦 Скрапинг SReality...")
     for page in range(1, pages + 1):
         print(f"   Страница {page}/{pages}...")
-        results = scrape_sreality(page)
+        results = scrape_sreality(page, filters=filters)
         all_properties.extend(results)
         print(f"   +{len(results)} объявлений")
         time.sleep(1)  # Rate limiting
@@ -297,13 +334,39 @@ def main():
     parser.add_argument("-o", "--output", choices=["xlsx", "csv", "both"], default="xlsx", help="Формат вывода")
     parser.add_argument("--open", action="store_true", help="Открыть результат после завершения")
     
+    # Фильтры
+    parser.add_argument("--area-min", type=int, default=FILTERS.get("area_min"), help="Мин. площадь (м²)")
+    parser.add_argument("--area-max", type=int, default=FILTERS.get("area_max"), help="Макс. площадь (м²)")
+    parser.add_argument("--price-min", type=int, default=FILTERS.get("price_min"), help="Мин. цена (CZK)")
+    parser.add_argument("--price-max", type=int, default=FILTERS.get("price_max"), help="Макс. цена (CZK)")
+    parser.add_argument("--region", type=int, default=FILTERS.get("region"), help="Регион (14=Praha)")
+    parser.add_argument("--rent", action="store_true", help="Аренда вместо продажи")
+    
     args = parser.parse_args()
+    
+    # Собираем фильтры
+    filters = FILTERS.copy()
+    if args.area_min is not None:
+        filters["area_min"] = args.area_min
+    if args.area_max is not None:
+        filters["area_max"] = args.area_max
+    if args.price_min is not None:
+        filters["price_min"] = args.price_min
+    if args.price_max is not None:
+        filters["price_max"] = args.price_max
+    if args.region is not None:
+        filters["region"] = args.region
+    if args.rent:
+        filters["category_type_cb"] = 2  # Аренда
     
     print("=" * 50)
     print("🏠 Real Estate Scraper - Чехия")
     print("=" * 50)
+    print(f"📌 Фильтры: площадь {filters.get('area_min', '-')}--{filters.get('area_max', '-')} м², "
+          f"цена {filters.get('price_min', '-')}--{filters.get('price_max', '-')} CZK, "
+          f"тип: {'аренда' if args.rent else 'продажа'}")
     
-    df = scrape_all(pages=args.pages)
+    df = scrape_all(pages=args.pages, filters=filters)
     
     if df.empty:
         print("\n❌ Нет данных!")
