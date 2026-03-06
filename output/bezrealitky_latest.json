@@ -1,0 +1,93 @@
+[
+  {
+    "Название":"Dlouhá, Praha - Staré Město",
+    "Цена":72616,
+    "Валюта":"CZK",
+    "Площадь":62,
+    "Ед.площади":"м²",
+    "Локация":"Dlouhá, Praha - Staré Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/861201-nabidka-pronajem-bytu-dlouha-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/861k\/861201\/flatiobt4nsvirt8sj6x9uyu7.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":1171.0
+  },
+  {
+    "Название":"Krocínova, Praha - Staré Město",
+    "Цена":83977,
+    "Валюта":"CZK",
+    "Площадь":86,
+    "Ед.площади":"м²",
+    "Локация":"Krocínova, Praha - Staré Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/830755-nabidka-pronajem-bytu-krocinova-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/830k\/830755\/flatiodp6u9cac1cbt6hetvp2.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":976.0
+  },
+  {
+    "Название":"Soukenická, Praha - Nové Město",
+    "Цена":116875,
+    "Валюта":"CZK",
+    "Площадь":90,
+    "Ед.площади":"м²",
+    "Локация":"Soukenická, Praha - Nové Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/835014-nabidka-pronajem-bytu-soukenicka-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/835k\/835014\/flatiochs4ardksi699qxazma.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":1299.0
+  },
+  {
+    "Название":"Krocínova, Praha - Staré Město",
+    "Цена":115144,
+    "Валюта":"CZK",
+    "Площадь":125,
+    "Ед.площади":"м²",
+    "Локация":"Krocínova, Praha - Staré Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/830756-nabidka-pronajem-bytu-krocinova-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/830k\/830756\/flatiofm3b6fpu89o770alsbz.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":921.0
+  },
+  {
+    "Название":"Soukenická, Praha - Nové Město",
+    "Цена":73588,
+    "Валюта":"CZK",
+    "Площадь":50,
+    "Ед.площади":"м²",
+    "Локация":"Soukenická, Praha - Nové Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/830722-nabidka-pronajem-bytu-soukenicka-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/830k\/830722\/flatio2bho4h1gppq1c8hcj6b.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":1472.0
+  },
+  {
+    "Название":"Soukenická, Praha - Nové Město",
+    "Цена":103889,
+    "Валюта":"CZK",
+    "Площадь":90,
+    "Ед.площади":"м²",
+    "Локация":"Soukenická, Praha - Nové Město",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/830721-nabidka-pronajem-bytu-soukenicka-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/830k\/830721\/flatio77dkvho8q1adfnbikmy.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":1154.0
+  },
+  {
+    "Название":"Ruská, Praha - Vršovice",
+    "Цена":25000,
+    "Валюта":"CZK",
+    "Площадь":61,
+    "Ед.площади":"м²",
+    "Локация":"Ruská, Praha - Vršovice",
+    "Источник":"Bezrealitky",
+    "Ссылка":"https:\/\/www.bezrealitky.cz\/nemovitosti-byty-domy\/727978-nabidka-pronajem-bytu-ruska-praha",
+    "Фото":"https:\/\/api.bezrealitky.cz\/media\/cache\/record_main\/data\/images\/advert\/727k\/727978\/1659259420-dmiojauawi-phpizduth.jpg",
+    "Дата":"2026-03-06 00:59",
+    "Цена за м²":410.0
+  }
+]
