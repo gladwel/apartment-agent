@@ -130,7 +130,11 @@
         return null;
     }
     
-    function getCoords(loc) {
+    function getCoords(loc, gps) {
+        // Использовать реальные GPS если есть
+        if (gps && gps.lat && gps.lng) {
+            return [gps.lat, gps.lng];
+        }
         const d = getDistrict(loc) || 'Praha 1';
         const base = pragueCoords[d] || [50.0875, 14.4215];
         const hash = getHash(loc);
@@ -202,7 +206,7 @@
         // Зум к маркеру и открыть попап
         const prop = allProperties.find(p => p._id === id);
         if (prop && map) {
-            const coord = getCoords(prop['Локация']);
+            const coord = getCoords(prop['Локация'], prop['GPS']);
             map.setView(coord, 15);
             const markerIdx = markers.findIndex(m => m._id === id);
             if (markerIdx >= 0 && markers[markerIdx]) {
@@ -224,7 +228,7 @@
         let props = selectedDistricts.length > 0 ? allProperties.filter(p => selectedDistricts.some(d => matchesDistrict(p['Локация']) === d)) : allProperties;
         
         props.forEach((p, idx) => {
-            const coord = getCoords(p['Локация']);
+            const coord = getCoords(p['Локация'], p['GPS']);
             const isSelected = p._id === selectedCardId;
             const iconHtml = isSelected 
                 ? '<div style="background:#4ecca3;width:24px;height:24px;border-radius:50%;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.5)"></div>'
@@ -277,7 +281,15 @@
     document.addEventListener('DOMContentLoaded', () => {
         map = L.map('map').setView([50.0875, 14.4215], 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM'}).addTo(map);
-        setTimeout(refreshAll, 100);
+        setTimeout(() => {
+            refreshAll();
+            // Авто-выбор первой квартиры
+            setTimeout(() => {
+                if (allProperties.length > 0) {
+                    selectCard(allProperties[0]._id);
+                }
+            }, 500);
+        }, 100);
     });
     </script>
 </body>
