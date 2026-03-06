@@ -3,512 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏠 Real Estate Tracker</title>
+    <title>🏠 Аренда Прага</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #1a1a2e;
-            color: #eee;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #333;
-        }
-        
-        .header h1 { font-size: 1.5rem; }
-        
-        .filters {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .filters select, .filters input {
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #16213e;
-            color: #eee;
-            font-size: 14px;
-        }
-        
-        .btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary { background: #0f3460; color: #fff; }
-        .btn-primary:hover { background: #1a4a7a; }
-        
-        .btn-refresh { background: #e94560; color: #fff; }
-        .btn-refresh:hover { background: #ff5a7a; }
-        
-        .stats {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #888;
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 20px;
-        }
-        
-        .card {
-            background: #16213e;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
-        }
-        
-        .card-image {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            background: #0f3460;
-        }
-        
-        .card-image.placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            color: #333;
-        }
-        
-        .card-body { padding: 16px; }
-        
-        .card-title {
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: #fff;
-        }
-        
-        .card-price {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #4ecca3;
-            margin-bottom: 8px;
-        }
-        
-        .card-meta {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 12px;
-        }
-        
-        .card-location {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 12px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .status-select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #1a1a2e;
-            color: #eee;
-            font-size: 13px;
-            margin-bottom: 10px;
-            cursor: pointer;
-        }
-        
-        .status-select[data-status="to_write"] { border-color: #f39c12; color: #f39c12; }
-        .status-select[data-status="prohlidka_planned"] { border-color: #3498db; color: #3498db; }
-        .status-select[data-status="visited"] { border-color: #2ecc71; color: #2ecc71; }
-        
-        .notes {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            border: 1px solid #333;
-            background: #1a1a2e;
-            color: #eee;
-            font-size: 13px;
-            resize: vertical;
-            min-height: 60px;
-            font-family: inherit;
-        }
-        
-        .notes:focus { outline: none; border-color: #4ecca3; }
-        
-        .card-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-        
-        .card-actions .btn {
-            flex: 1;
-            padding: 6px;
-            font-size: 12px;
-        }
-        
-        .btn-view {
-            background: #4ecca3;
-            color: #1a1a2e;
-        }
-        
-        .btn-save {
-            background: #0f3460;
-            color: #fff;
-        }
-        
-        .empty {
-            text-align: center;
-            padding: 60px;
-            color: #666;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #888;
-        }
-        
-        @media (max-width: 600px) {
-            .header { flex-direction: column; gap: 15px; }
-            .filters { width: 100%; }
-            .filters select, .filters input { flex: 1; }
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; color: #fff; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: #1a1a2e; flex-wrap: wrap; gap: 12px; }
+        .header h1 { font-size: 1.2rem; }
+        .header-right { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .refresh-btn { padding: 8px 12px; background: #4ecca3; color: #000; border: none; border-radius: 6px; cursor: pointer; }
+        .district-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+        .district-btn { padding: 6px 12px; background: #16213e; color: #888; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .district-btn.active { background: #4ecca3; color: #000; border-color: #4ecca3; }
+        .tabs { display: flex; background: #1a1a2e; padding: 0 16px; gap: 8px; }
+        .tab { padding: 10px 16px; background: transparent; color: #888; border: none; cursor: pointer; }
+        .tab.active { color: #4ecca3; border-bottom: 2px solid #4ecca3; }
+        .content { display: none; }
+        .content.active { display: block; }
+        .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 16px; }
+        #map { height: calc(100vh - 160px); }
+        .card { border-radius: 12px; overflow: hidden; position: relative; height: 200px; background: #1a1a2e; }
+        .card-img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
+        .card-link { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        .card-body { position: absolute; bottom: 0; left: 0; right: 0; padding: 12px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
+        .card-price { font-size: 1.1rem; font-weight: 700; color: #4ecca3; }
+        .card-meta { font-size: 0.75rem; color: #ddd; }
+        .card-location { font-size: 0.7rem; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .source-badge { position: absolute; top: 8px; right: 8px; padding: 3px 6px; border-radius: 4px; font-size: 9px; font-weight: 600; }
+        .source-sreality { background: #0f3460; }
+        .source-bezier { background: #e94560; }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>🏠 Real Estate Tracker</h1>
-        <div class="filters">
-            <select id="filterStatus">
-                <option value="">Все статусы</option>
-                <option value="to_write">📝 To Write</option>
-                <option value="prohlidka_planned">📅 Prohlídka Planned</option>
-                <option value="visited">✅ Visited</option>
-            </select>
-            <input type="text" id="searchLocation" placeholder="Поиск по локации...">
-            <button class="btn btn-primary" onclick="loadData()">🔄 Refresh</button>
+        <h1>🏠 Аренда Прага</h1>
+        <div class="header-right">
+            <div class="district-btns">
+                <button class="district-btn active" data-district="all" onclick="toggleDistrict('all', this)">Все</button>
+                <button class="district-btn" data-district="Praha 1" onclick="toggleDistrict('Praha 1', this)">П1</button>
+                <button class="district-btn" data-district="Praha 2" onclick="toggleDistrict('Praha 2', this)">П2</button>
+                <button class="district-btn" data-district="Praha 3" onclick="toggleDistrict('Praha 3', this)">П3</button>
+                <button class="district-btn" data-district="Praha 4" onclick="toggleDistrict('Praha 4', this)">П4</button>
+                <button class="district-btn" data-district="Praha 5" onclick="toggleDistrict('Praha 5', this)">П5</button>
+                <button class="district-btn" data-district="Praha 6" onclick="toggleDistrict('Praha 6', this)">П6</button>
+                <button class="district-btn" data-district="Praha 7" onclick="toggleDistrict('Praha 7', this)">П7</button>
+                <button class="district-btn" data-district="Praha 8" onclick="toggleDistrict('Praha 8', this)">П8</button>
+                <button class="district-btn" data-district="Praha 9" onclick="toggleDistrict('Praha 9', this)">П9</button>
+                <button class="district-btn" data-district="Praha 10" onclick="toggleDistrict('Praha 10', this)">П10</button>
+            </div>
+            <span id="count">26 кв.</span>
+            <button class="refresh-btn" onclick="refreshAll()">🔄</button>
         </div>
     </div>
     
-    <div class="stats" id="stats"></div>
-    
-    <div class="grid" id="grid">
-        <div class="loading">Загрузка...</div>
+    <div class="tabs">
+        <button class="tab active" onclick="showTab('list')">📋 Список</button>
+        <button class="tab" onclick="showTab('map')">🗺️ Карта</button>
     </div>
+    
+    <div id="list" class="content active">
+        <div class="grid" id="grid"></div>
+    </div>
+    
+    <div id="map" class="content"></div>
 
     <script>
-        const STORAGE_KEY = 'real_estate_data';
-        
-        // Данные из скрейпера
-        let properties = [];
-        
-        // Загруженные заметки и статусы
-        let savedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-        
-        // Демо данные для фронтенда
-        const demoData = [
-  {
-    "Название": "Prodej bytu 3+1 75 m²",
-    "Цена": 2200000.0,
-    "Валюта": "CZK",
-    "Площадь": 75,
-    "Ед.площади": "м²",
-    "Локация": "Samšín, okres Pelhřimov",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 29333.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 3+1 77 m²",
-    "Цена": 3090000.0,
-    "Валюта": "CZK",
-    "Площадь": 77,
-    "Ед.площади": "м²",
-    "Локация": "Loučná nad Desnou, okres Šumperk",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 40130.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+1 60 m²",
-    "Цена": 3490000.0,
-    "Валюта": "CZK",
-    "Площадь": 60,
-    "Ед.площади": "м²",
-    "Локация": "nám. Svobody, Holešov",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 58167.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 1+kk 38 m² (Jednopodlažní)",
-    "Цена": 3790000.0,
-    "Валюта": "CZK",
-    "Площадь": 38,
-    "Ед.площади": "м²",
-    "Локация": "Plzeň - Jižní Předměstí, okres Plzeň-město",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 99737.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+1 51 m²",
-    "Цена": 3950000.0,
-    "Валюта": "CZK",
-    "Площадь": 51,
-    "Ед.площади": "м²",
-    "Локация": "Dobrovodská, České Budějovice - České Budějovice 5",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 77451.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+1 43 m²",
-    "Цена": 4099000.0,
-    "Валюта": "CZK",
-    "Площадь": 43,
-    "Ед.площади": "м²",
-    "Локация": "Na Výsluní, Zruč nad Sázavou",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 95326.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 3+1 69 m²",
-    "Цена": 4300000.0,
-    "Валюта": "CZK",
-    "Площадь": 69,
-    "Ед.площади": "м²",
-    "Локация": "Dolní Jasenka, Vsetín",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 62319.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+kk 41 m² (Jednopodlažní)",
-    "Цена": 5150000.0,
-    "Валюта": "CZK",
-    "Площадь": 41,
-    "Ед.площади": "м²",
-    "Локация": "Bašty, Brno - Brno-město",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 125610.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+kk 50 m²",
-    "Цена": 5300000.0,
-    "Валюта": "CZK",
-    "Площадь": 50,
-    "Ед.площади": "м²",
-    "Локация": "Vítové, Praha 5 - Hlubočepy",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 106000.0,
-    "image": ""
-  },
-  {
-    "Название": "Prodej bytu 2+kk 57 m²",
-    "Цена": 5500000.0,
-    "Валюта": "CZK",
-    "Площадь": 57,
-    "Ед.площади": "м²",
-    "Локация": "Ferrariho, Praha 5 - Stodůlky",
-    "Источник": "SReality",
-    "Ссылка": "https://www.sreality.cz",
-    "Дата": "2026-03-06 00:38",
-    "Цена за м²": 96491.0,
-    "image": ""
-  }
-];
-        
-        async function loadData() {
-            const grid = document.getElementById('grid');
-            grid.innerHTML = '<div class="loading">Загрузка данных...</div>';
-            
-            try {
-                // Загружаем JSON из скрейпера
-                const response = await fetch('../output/byty_latest.json');
-                if (response.ok) {
-                    const data = await response.json();
-                    // Добавляем ID для трекинга
-                    properties = data.map((p, i) => ({...p, id: i}));
-                } else {
-                    properties = demoData;
-                }
-            } catch (e) {
-                console.log('Using demo data');
-                properties = demoData;
+    let allProperties = [{"Название": "Vrchlického, Praha - Košíře", "Цена": 13500, "Валюта": "CZK", "Площадь": 30, "Ед.площади": "м²", "Локация": "Vrchlického, Praha - Košíře", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997955-nabidka-pronajem-bytu-vrchlickeho-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997955/1772750690-dvbieratxa-1.jpg", "Дата": "2026-03-06 02:29", "Цена за м²": 450.0}, {"Название": "Dělnická, Praha - Holešovice", "Цена": 15500, "Валюта": "CZK", "Площадь": 22, "Ед.площади": "м²", "Локация": "Dělnická, Praha - Holešovice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/375542-nabidka-pronajem-bytu-delnicka-praha-7", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/375k/375542/1430167223-tqjcx-pokoj.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 705.0}, {"Название": "Za Návsí, Praha - Záběhlice", "Цена": 16500, "Валюта": "CZK", "Площадь": 20, "Ед.площади": "м²", "Локация": "Za Návsí, Praha - Záběhlice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/951106-nabidka-pronajem-bytu-za-navsi-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/951k/951106/1759336671-yxtipqzyoz-img-8050.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 825.0}, {"Название": "Strnadových, Praha - Vysočany", "Цена": 17000, "Валюта": "CZK", "Площадь": 33, "Ед.площади": "м²", "Локация": "Strnadových, Praha - Vysočany", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/989517-nabidka-pronajem-bytu-strnadovych-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/989k/989517/1770667428-mbywilvlup-img-3058.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 515.0}, {"Название": "Honzíkova, Praha - Dolní Měcholupy", "Цена": 17000, "Валюта": "CZK", "Площадь": 28, "Ед.площади": "м²", "Локация": "Honzíkova, Praha - Dolní Měcholupy", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/996550-nabidka-pronajem-bytu-honzikova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/996k/996550/1772475099-mfpbgjhezk-img-0110_TS1772712140TS.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 607.0}, {"Название": "K Jezeru, Praha - Hostivař", "Цена": 17500, "Валюта": "CZK", "Площадь": 76, "Ед.площади": "м²", "Локация": "K Jezeru, Praha - Hostivař", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/vypis/nabidka-pronajem/byt?page=4", "Фото": "", "Дата": "2026-03-06 02:30", "Цена за м²": 230.0}, {"Название": "K Jezeru, Praha - Hostivař", "Цена": 17500, "Валюта": "CZK", "Площадь": 76, "Ед.площади": "м²", "Локация": "K Jezeru, Praha - Hostivař", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/vypis/nabidka-pronajem/byt?page=6", "Фото": "", "Дата": "2026-03-06 02:30", "Цена за м²": 230.0}, {"Название": "K Jezeru, Praha - Hostivař", "Цена": 17500, "Валюта": "CZK", "Площадь": 76, "Ед.площади": "м²", "Локация": "K Jezeru, Praha - Hostivař", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/vypis/nabidka-pronajem/byt?page=296", "Фото": "", "Дата": "2026-03-06 02:30", "Цена за м²": 230.0}, {"Название": "Bítovská, Praha - Michle", "Цена": 18000, "Валюта": "CZK", "Площадь": 43, "Ед.площади": "м²", "Локация": "Bítovská, Praha - Michle", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997951-nabidka-pronajem-bytu-bitovska-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997951/1772744972-efulfktaui-20260303-162917.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 419.0}, {"Название": "Křižíkova, Praha - Karlín", "Цена": 18500, "Валюта": "CZK", "Площадь": 48, "Ед.площади": "м²", "Локация": "Křižíkova, Praha - Karlín", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997938-nabidka-pronajem-bytu-krizikova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997938/1430795304-dukqt-fasada-roh_TS1715586824TS.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 385.0}, {"Название": "Svitákova, Praha - Stodůlky", "Цена": 19000, "Валюта": "CZK", "Площадь": 46, "Ед.площади": "м²", "Локация": "Svitákova, Praha - Stodůlky", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997942-nabidka-pronajem-bytu-svitakova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997942/1772739273-orjzdwwrpv-1.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 413.0}, {"Название": "Hořanská, Praha - Žižkov", "Цена": 19000, "Валюта": "CZK", "Площадь": 50, "Ед.площади": "м²", "Локация": "Hořanská, Praha - Žižkov", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997930-nabidka-pronajem-bytu-horanska-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997930/1772730945-vshangkanw-dsc03166.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 380.0}, {"Название": "K Jezeru, Praha - Hostivař", "Цена": 19000, "Валюта": "CZK", "Площадь": 37, "Ед.площади": "м²", "Локация": "K Jezeru, Praha - Hostivař", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/845892-nabidka-pronajem-bytu-k-jezeru-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/845k/845892/1718048581-luhqrdatxs-d-c5-afm-titul.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 514.0}, {"Название": "Nuselská, Praha - Nusle", "Цена": 21000, "Валюта": "CZK", "Площадь": 64, "Ед.площади": "м²", "Локация": "Nuselská, Praha - Nusle", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997935-nabidka-pronajem-bytu-nuselska-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997935/1772734455-bbtxeusuda-img-7527.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 328.0}, {"Название": "Za Návsí, Praha - Záběhlice", "Цена": 23000, "Валюта": "CZK", "Площадь": 40, "Ед.площади": "м²", "Локация": "Za Návsí, Praha - Záběhlice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/997939-nabidka-pronajem-bytu-za-navsi-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/997k/997939/1772738562-dsgoensurh-za-navsi-1.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 575.0}, {"Название": "Pronájem bytu 1+kk 37 m²", "Цена": 24100, "Валюта": "CZK", "Площадь": 37, "Ед.площади": "м²", "Локация": "Vrbenského, Praha 7 - Holešovice", "Источник": "SReality", "Ссылка": "https://www.sreality.cz/cs/v2/estates/942891852", "Фото": "https://d18-a.sdn.cz/d_18/c_img_p8_C/kY1K2LlXQBiCrTnUF3m1nZ/8be1.jpeg?fl=res,400,300,3|shr,,20|jpg,90", "Дата": "2026-03-06 03:56", "Цена за м²": 651}, {"Название": "Ruská, Praha - Vršovice", "Цена": 25000, "Валюта": "CZK", "Площадь": 61, "Ед.площади": "м²", "Локация": "Ruská, Praha - Vršovice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/727978-nabidka-pronajem-bytu-ruska-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/727k/727978/1659259420-dmiojauawi-phpizduth.jpg", "Дата": "2026-03-06 02:29", "Цена за м²": 410.0}, {"Название": "Pod Pramenem, Praha - Nusle", "Цена": 25000, "Валюта": "CZK", "Площадь": 75, "Ед.площади": "м²", "Локация": "Pod Pramenem, Praha - Nusle", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/537297-nabidka-pronajem-bytu-pod-pramenem-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/537k/537297/1772745888-gxbuedfznc-1-ob.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 333.0}, {"Название": "Antonínská, Praha - Holešovice", "Цена": 26000, "Валюта": "CZK", "Площадь": 47, "Ед.площади": "м²", "Локация": "Antonínská, Praha - Holešovice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/810225-nabidka-pronajem-bytu-antoninska-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/810k/810225/1698675686-bwpqaxqhre-phpfftpzj.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 553.0}, {"Название": "Jeremiášova, Praha - Stodůlky", "Цена": 26700, "Валюта": "CZK", "Площадь": 74, "Ед.площади": "м²", "Локация": "Jeremiášova, Praha - Stodůlky", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/974112-nabidka-pronajem-bytu-jeremiasova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/974k/974112/1766010426-cxuexvgxgb-img-1316.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 361.0}, {"Название": "Na Farkáně Ⅲ, Praha - Radlice", "Цена": 27000, "Валюта": "CZK", "Площадь": 56, "Ед.площади": "м²", "Локация": "Na Farkáně Ⅲ, Praha - Radlice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/995880-nabidka-pronajem-bytu-na-farkane-iii-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/995k/995880/1772310965-mvuylwuwjo-img-0015.jpg", "Дата": "2026-03-06 02:29", "Цена за м²": 482.0}, {"Название": "Michelangelova, Praha - Strašnice", "Цена": 27500, "Валюта": "CZK", "Площадь": 53, "Ед.площади": "м²", "Локация": "Michelangelova, Praha - Strašnice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/996570-nabidka-pronajem-bytu-michelangelova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/996k/996570/1772481635-kvqwjftmri-whatsapp-image-2026-03-02-at-14-17-01.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 519.0}, {"Название": "Svojetická, Praha - Strašnice", "Цена": 28000, "Валюта": "CZK", "Площадь": 76, "Ед.площади": "м²", "Локация": "Svojetická, Praha - Strašnice", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/854474-nabidka-pronajem-bytu-svojeticka-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/854k/854474/1722458850-dfixqohfpw-1.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 368.0}, {"Название": "Tupolevova, Praha - Letňany", "Цена": 31000, "Валюта": "CZK", "Площадь": 63, "Ед.площади": "м²", "Локация": "Tupolevova, Praha - Letňany", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/996127-nabidka-pronajem-bytu-tupolevova-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/996k/996127/1772374403-mgjohtksjx-living-room2.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 492.0}, {"Название": "Pronájem bytu 2+kk 54 m²", "Цена": 32600, "Валюта": "CZK", "Площадь": 54, "Ед.площади": "м²", "Локация": "U Pergamenky, Praha 7 - Holešovice", "Источник": "SReality", "Ссылка": "https://www.sreality.cz/cs/v2/estates/858415948", "Фото": "https://d18-a.sdn.cz/d_18/c_img_p9_A/nPVpfd5QLLDhCZlJ1NF7sRBv/8427.jpeg?fl=res,400,300,3|shr,,20|jpg,90", "Дата": "2026-03-06 03:56", "Цена за м²": 604}, {"Название": "Belgická, Praha - Vinohrady", "Цена": 34000, "Валюта": "CZK", "Площадь": 81, "Ед.площади": "м²", "Локация": "Belgická, Praha - Vinohrady", "Источник": "Bezrealitky", "Ссылка": "https://www.bezrealitky.cz/nemovitosti-byty-domy/568954-nabidka-pronajem-bytu-belgicka-praha", "Фото": "https://api.bezrealitky.cz/media/cache/record_main/data/images/advert/568k/568954/1564060848-wlthxsjtgj.jpg", "Дата": "2026-03-06 02:30", "Цена за м²": 420.0}];
+    let map, markers = [];
+    let selectedDistricts = [];
+    
+    const pragueCoords = {
+        'Praha 1': [50.0875, 14.4215], 'Praha 2': [50.0775, 14.4480], 'Praha 3': [50.0830, 14.4750],
+        'Praha 4': [50.0500, 14.4400], 'Praha 5': [50.0550, 14.4100], 'Praha 6': [50.1000, 14.3900],
+        'Praha 7': [50.0950, 14.4250], 'Praha 8': [50.1100, 14.4500], 'Praha 9': [50.1200, 14.4800], 'Praha 10': [50.0750, 14.5000],
+    };
+    
+    const areaToDistrict = {
+        'Smíchov': 'Praha 5', 'Košíře': 'Praha 5', 'Radlice': 'Praha 5', 'Zbraslav': 'Praha 5', 'Modřany': 'Praha 4',
+        'Vinohrady': 'Praha 2', 'Vršovice': 'Praha 10', 'Nusle': 'Praha 4', 'Michle': 'Praha 4', 'Chodov': 'Praha 4',
+        'Hloubětín': 'Praha 9', 'Černý Most': 'Praha 9', 'Kbely': 'Praha 9', 'Letňany': 'Praha 9',
+        'Vysočany': 'Praha 9', 'Žižkov': 'Praha 3',
+        'Staré Město': 'Praha 1', 'Nové Město': 'Praha 1',
+        'Vokovice': 'Praha 6', 'Dejvice': 'Praha 6', 'Bubeneč': 'Praha 6',
+        'Holešovice': 'Praha 7', 'Karlín': 'Praha 8', 'Libeň': 'Praha 8',
+        'Hostivař': 'Praha 10', 'Strašnice': 'Praha 10',
+        'Krč': 'Praha 4', 'Lhotka': 'Praha 4', 'Libuš': 'Praha 4',
+        'Záběhlice': 'Praha 10', 'Stodůlky': 'Praha 5', 'Dolní Měcholupy': 'Praha 10', 'Kobylisy': 'Praha 8',
+    };
+    
+    function getHash(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) {
+            const char = str.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash;
+        }
+        return Math.abs(hash);
+    }
+    
+    function getDistrict(loc) {
+        if (!loc) return null;
+        for (let i = 1; i <= 10; i++) {
+            if (loc.includes('Praha ' + i) || loc.includes('Praha-' + i)) return 'Praha ' + i;
+        }
+        const parts = loc.split(' - ');
+        if (parts.length > 1) {
+            const area = parts[parts.length - 1].trim();
+            if (areaToDistrict[area]) return areaToDistrict[area];
+        }
+        return null;
+    }
+    
+    function getCoords(loc) {
+        const d = getDistrict(loc) || 'Praha 1';
+        const base = pragueCoords[d] || [50.0875, 14.4215];
+        const hash = getHash(loc);
+        const angle = (hash % 360) * (Math.PI / 180);
+        const radius = 0.008 + ((hash % 20) / 1000);
+        return [base[0] + Math.sin(angle) * radius, base[1] + Math.cos(angle) * radius];
+    }
+    
+    function showTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById(tab).classList.add('active');
+        if (tab === 'map' && !map) {
+            map = L.map('map').setView([50.0875, 14.4215], 12);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {attribution: '© OSM'}).addTo(map);
+            setTimeout(renderMarkers, 100);
+        }
+    }
+    
+    // Маппинг названий районов к номерам Праги
+    const DISTRICT_MAP = {
+        'Praha 1': ['Nové Město', 'Staré Město', 'Malá Strana', 'Hradčany', 'Josefov', 'Vyšehrad', 'Vinohrady'],
+        'Praha 2': ['Vinohrady', 'Nusle', 'Vyšehrad', 'Nové Město'],
+        'Praha 3': ['Žižkov', 'Vinohrady', 'Strašnice'],
+        'Praha 4': ['Braník', 'Modřany', 'Krč', 'Kunratice', 'Chodov', 'Háje', 'Michle', 'Lhotka'],
+        'Praha 5': ['Košíře', 'Smíchov', 'Hlubočepy', 'Barrandov', 'Radlice', 'Zličín'],
+        'Praha 6': ['Břevnov', 'Dejvice', 'Bubeneč', 'Hanspaulka', 'Střešovice', 'Veleslavín', 'Ruzyně'],
+        'Praha 7': ['Holešovice', 'Bubny', 'Letná', 'Holešovice'],
+        'Praha 8': ['Karlín', 'Libeň', 'Vysočany', 'Bohunice', 'Černý Most'],
+        'Praha 9': ['Prosek', 'Vysočany', 'Hloubětín', 'Kobylisy', 'Střížkov'],
+        'Praha 10': ['Vršovice', 'Strašnice', 'Hostivař', 'Malešice', 'Záběhlice']
+    };
+
+    function matchesDistrict(location) {
+        if (!location) return false;
+        location = location.toLowerCase();
+        for (const [prahaNum, districts] of Object.entries(DISTRICT_MAP)) {
+            for (const d of districts) {
+                if (location.includes(d.toLowerCase())) return prahaNum;
             }
-            
-            render();
         }
-        
-        function render() {
-            const grid = document.getElementById('grid');
-            const statusFilter = document.getElementById('filterStatus').value;
-            const searchFilter = document.getElementById('searchLocation').value.toLowerCase();
-            
-            let filtered = properties.filter(p => {
-                const saved = savedData[p.id] || {};
-                const status = saved.status || '';
-                
-                if (statusFilter && status !== statusFilter) return false;
-                if (searchFilter && !p.location.toLowerCase().includes(searchFilter)) return false;
-                
-                return true;
-            });
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = '<div class="empty">Нет объявлений</div>';
-                return;
+        // Прямое совпадение Praha N
+        for (let i = 1; i <= 10; i++) {
+            if (location.includes(`praha ${i}`) || location.includes(`praha${i}`)) return `Praha ${i}`;
+        }
+        return null;
+    }
+
+    function toggleDistrict(district, btn) {
+        if (district === 'all') {
+            selectedDistricts = [];
+            document.querySelectorAll('.district-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        } else {
+            document.querySelector('[data-district="all"]').classList.remove('active');
+            if (selectedDistricts.includes(district)) {
+                selectedDistricts = selectedDistricts.filter(d => d !== district);
+                btn.classList.remove('active');
+            } else {
+                selectedDistricts.push(district);
+                btn.classList.add('active');
             }
-            
-            // Статистика
-            const stats = { to_write: 0, prohlidka_planned: 0, visited: 0 };
-            properties.forEach(p => {
-                const s = (savedData[p.id] || {}).status;
-                if (s) stats[s]++;
-            });
-            
-            document.getElementById('stats').innerHTML = `
-                📝 To Write: ${stats.to_write} | 
-                📅 Prohlídka: ${stats.prohlidka_planned} | 
-                ✅ Visited: ${stats.visited} | 
-                Всего: ${properties.length}
-            `;
-            
-            grid.innerHTML = filtered.map((p, idx) => {
-                const id = p.id !== undefined ? p.id : idx;
-                const saved = savedData[id] || {};
-                const status = saved.status || '';
-                const notes = saved.notes || '';
-                const imageUrl = p['Фото'] || p['photo'] || p.image || '';
-                const name = p['Название'] || p.name || '';
-                const price = p['Цена'] || p.price || 0;
-                const area = p['Площадь'] || p.area || 0;
-                const location = p['Локация'] || p.location || '';
-                const url = p['Ссылка'] || p.url || '';
-                
-                return `
-                <div class="card">
-                    ${imageUrl 
-                        ? `<img class="card-image" src="${imageUrl}" alt="${name}" onerror="this.outerHTML='<div class=\\'card-image placeholder\\'>🏠</div>'">`
-                        : `<div class="card-image placeholder">🏠</div>`
-                    }
-                    <div class="card-body">
-                        <div class="card-title">${name}</div>
-                        <div class="card-price">${formatPrice(price)} Kč</div>
-                        <div class="card-meta">${area} м² • ${area ? (price / area | 0) : 0} Kč/м²</div>
-                        <div class="card-location">📍 ${location}</div>
-                        
-                        <select class="status-select" data-status="${status}" onchange="updateStatus(${id}, this.value)">
-                            <option value="">— Статус —</option>
-                            <option value="to_write" ${status === 'to_write' ? 'selected' : ''}>📝 To Write</option>
-                            <option value="prohlidka_planned" ${status === 'prohlidka_planned' ? 'selected' : ''}>📅 Prohlídka Planned</option>
-                            <option value="visited" ${status === 'visited' ? 'selected' : ''}>✅ Visited</option>
-                        </select>
-                        
-                        <textarea class="notes" placeholder="Заметки..." onchange="updateNotes(${id}, this.value)">${notes}</textarea>
-                        
-                        <div class="card-actions">
-                            <a href="${url}" target="_blank" class="btn btn-view">👁 Смотреть</a>
-                            <button class="btn btn-save" onclick="saveData()">💾 Сохранить</button>
-                        </div>
-                    </div>
-                </div>
-                `;
-            }).join('');
+            if (selectedDistricts.length === 0) document.querySelector('[data-district="all"]').classList.add('active');
         }
-        
-        function formatPrice(price) {
-            if (!price) return 'Договорная';
-            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-        }
-        
-        function updateStatus(id, status) {
-            if (!savedData[id]) savedData[id] = {};
-            savedData[id].status = status;
-            
-            const select = document.querySelector(`.status-select[onchange*="${id},"]`);
-            if (select) select.setAttribute('data-status', status);
-            
-            updateStats();
-        }
-        
-        function updateNotes(id, notes) {
-            if (!savedData[id]) savedData[id] = {};
-            savedData[id].notes = notes;
-        }
-        
-        function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(savedData));
-            alert('✅ Сохранено в браузере!');
-        }
-        
-        function updateStats() {
-            const stats = { to_write: 0, prohlidka_planned: 0, visited: 0 };
-            properties.forEach(p => {
-                const s = (savedData[p.id] || {}).status;
-                if (s) stats[s]++;
-            });
-            
-            document.getElementById('stats').innerHTML = `
-                📝 To Write: ${stats.to_write} | 
-                📅 Prohlídka: ${stats.prohlidka_planned} | 
-                ✅ Visited: ${stats.visited} | 
-                Всего: ${properties.length}
-            `;
-        }
-        
-        // Фильтры
-        document.getElementById('filterStatus').addEventListener('change', render);
-        document.getElementById('searchLocation').addEventListener('input', render);
-        
-        // Загрузка при старте
-        loadData();
+        render();
+        if (map) renderMarkers();
+    }
+    
+    function renderMarkers() {
+        if (!map) return;
+        markers.forEach(m => map.removeLayer(m));
+        markers = [];
+        let props = selectedDistricts.length > 0 ? allProperties.filter(p => selectedDistricts.some(d => matchesDistrict(p['Локация']) === d)) : allProperties;
+        props.forEach(p => {
+            const coord = getCoords(p['Локация']);
+            const popupContent = '<div style="min-width:180px"><div style="font-size:1.1em;font-weight:700;color:#4ecca3">' + parseInt(p['Цена']||0).toLocaleString() + ' Kč</div><div style="font-size:0.85em;color:#aaa">' + (p['Площадь']||0) + ' м²</div><div style="font-size:0.8em;margin-top:4px">' + (p['Локация']||'') + '</div><a href="' + (p['Ссылка']||'#') + '" target="_blank" style="display:block;margin-top:8px;padding:6px;background:#4ecca3;color:#000;text-align:center;border-radius:4px;text-decoration:none;font-size:0.8em">Смотреть</a></div>';
+            markers.push(L.marker(coord).addTo(map).bindPopup(popupContent));
+        });
+        if (markers.length > 0) { map.fitBounds(L.featureGroup(markers).getBounds().pad(0.1)); }
+    }
+    
+    function render() {
+        let props = selectedDistricts.length > 0 ? allProperties.filter(p => selectedDistricts.some(d => matchesDistrict(p['Локация']) === d)) : allProperties;
+        document.getElementById('grid').innerHTML = props.slice(0,40).map(p => {
+            const photo = p['Фото'] || '';
+            const badge = p['Источник'] === 'SReality' ? 'source-sreality' : 'source-bezier';
+            const img = photo ? '<img class="card-img" src="' + photo + '">' : '<div class="card-img" style="background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;font-size:2rem">🏠</div>';
+            const link = p['Ссылка'] || '#';
+            return '<div class="card">' + img + '<a href="' + link + '" target="_blank" class="card-link"></a><span class="source-badge ' + badge + '">' + p['Источник'] + '</span><div class="card-body"><div class="card-price">' + parseInt(p['Цена']||0).toLocaleString() + ' Kč</div><div class="card-meta">' + (p['Площадь']||0) + ' м²</div><div class="card-location">📍 ' + (p['Локация']||'').slice(0,50) + '</div></div></div>';
+        }).join('');
+        document.getElementById('count').textContent = props.length + ' кв.';
+    }
+    
+    async function refreshAll() {
+        try { const resp = await fetch('combined_latest.json'); const data = await resp.json(); allProperties = data.filter(p => p['Цена'] && p['Цена'] <= 40000 && p['Локация'].toLowerCase().includes('praha')).sort((a,b) => a['Цена'] - b['Цена']); } catch(e) {}
+        render();
+        if (map) renderMarkers();
+    }
+    
+    render();
     </script>
 </body>
 </html>

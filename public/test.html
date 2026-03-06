@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <h1>Test Page</h1>
+    <div id="output">Loading...</div>
+    <script>
+        fetch('combined_latest.json')
+            .then(r => r.json())
+            .then(d => {
+                document.getElementById('output').innerHTML = 'Loaded ' + d.length + ' items';
+                console.log(d);
+            })
+            .catch(e => {
+                document.getElementById('output').innerHTML = 'Error: ' + e;
+            });
+    </script>
+</body>
+</html>

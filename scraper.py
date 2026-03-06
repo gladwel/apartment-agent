@@ -119,9 +119,9 @@ def scrape_sreality(page: int = 1, limit: int = 50, filters: dict = None) -> lis
                     name_parts.append(e.get("state"))
                 name = " ".join(name_parts) if name_parts else "Без названия"
             
-            # Ссылка
-            links = e.get("links", [])
-            href = links[0].get("href") if links else ""
+            # Ссылка - from _links.self
+            self_link = e.get("_links", {}).get("self", {})
+            href = self_link.get("href", "")
             link = f"https://www.sreality.cz{href}" if href else ""
             
             # Изображение - берём из _links
